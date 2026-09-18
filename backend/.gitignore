@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+.pytest_cache/
+*.pyc
+
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Databases & SQLite
+*.db
+*.sqlite
+*.sqlite3
+pharma_complaints.db
+
+# Uploaded documents generated during testing
+uploaded_documents/*
+!uploaded_documents/.gitkeep
+
+# Logs
+*.log
