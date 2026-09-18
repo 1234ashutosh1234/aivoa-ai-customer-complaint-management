@@ -1,0 +1,37 @@
+From: Dr. Sarah Jenkins <sjenkins@stjude-pharma.org>
+To: Quality Assurance Department <complaints@novapharma-mfg.com>
+Date: Mon, 15 Sep 2026 09:24:18 -0400
+Subject: URGENT: Blister Packaging Seal Failure & Moisture Ingress - Amoxicillin 500mg Capsules (Lot BX-2026-091)
+
+Dear Quality Unit,
+
+I am writing on behalf of the Central Inpatient Pharmacy at St. Jude Memorial Hospital to formally lodge a product quality defect complaint regarding your Amoxicillin Trihydrate 500mg Capsules.
+
+During our routine unit-dose inspection for inpatient cart fill this morning, one of our clinical staff pharmacists observed significant packaging integrity failures across multiple blister cards. 
+
+Details of the affected product:
+- Product: Amoxicillin Trihydrate Capsules 500mg
+- Lot / Batch Number: BX-2026-091
+- Expiry Date: 11/2027
+- Quantity Received: 10 cartons (1,000 capsules total)
+- Quantity Affected: At least 4 cartons inspected show varying degrees of foil separation
+
+Defect Description:
+The aluminum backing foil has failed to adhere securely to the clear PVC blister cavities along the perimeter knurling tracks. Several blister pockets display microscopic pinhole punctures and incomplete thermal seals. As a direct consequence, ambient moisture has permeated the blister wells, causing the enclosed capsules to soften, clump together, and exhibit brownish mottling/discoloration compared to normal white opaque capsules.
+
+Patient Safety Context:
+Fortunately, our pharmacy inspection protocol intercepted these defective units prior to dispensing to hospital wards. No patients have ingested the compromised medication, and no adverse medical events have occurred. 
+
+Action Taken:
+We have immediately quarantined the entire remaining inventory of Lot BX-2026-091 in our pharmacy vault. We have preserved 4 defective blister strips inside an airtight moisture-barrier bag and are prepared to release them to your field QA investigator for analytical retain testing.
+
+Please provide a formal Complaint Tracking Number, an acknowledgment of receipt, and your preliminary investigation timeline.
+
+Sincerely,
+
+Dr. Sarah Jenkins, PharmD, BCPS
+Director of Inpatient Pharmacy Operations
+St. Jude Memorial Hospital
+1400 Mercy Boulevard, Philadelphia, PA 19104, USA
+Office: +1 (555) 019-2834
+Email: sjenkins@stjude-pharma.org

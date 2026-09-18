@@ -1,0 +1,29 @@
+INCIDENT REPORT: PEDIATRIC ORAL SUSPENSION DOSING DEVICE DISCREPANCY & ADVERSE EVENT TRIAGE
+
+Incident Date: September 16, 2026
+Source: Ambulatory Pediatric Care Clinic & Consumer Hotline
+Complainant Name: Maria Elena Rodriguez (Mother of 3-year-old patient)
+Phone: (312) 555-8941 | Email: m_rodriguez91@gmail.com
+Address: Chicago, Illinois, USA
+
+Product Information:
+- Product Trade Name: JuniorCillin Pediatric Oral Suspension (Amoxicillin 250mg/5mL)
+- NDC / Product Code: 49281-302-15
+- Batch / Lot Number: PED-2026-044
+- Expiration Date: 08/2027
+- Dispensing Pharmacy: Walgreens Pharmacy #4812, Chicago, IL
+
+Nature of Defect & Medical Event:
+The parent called to report that the enclosed 5 mL calibrated oral dosing syringe included in the packaging carton has defective, misaligned volumetric graduation markings. The 2.5 mL mark and 5.0 mL mark are reversed/misprinted, with the line designated as "2.5 mL" actually corresponding to a 4.8 mL liquid fill level when verified against a standard clinical syringe.
+
+Patient Involvement & Clinical Impact:
+The mother administered two doses of the medication to her 3-year-old child (approx. 14 kg body weight) believing she was administering 2.5 mL (125 mg), but effectively delivered almost double the recommended pediatric dose (~240 mg per administration). The child experienced severe gastrointestinal upset, acute vomiting, and persistent diarrhea, prompting an emergency visit to Lurie Children's Hospital Urgent Care. The child was treated with intravenous rehydration and is currently stable under observation.
+
+Attending Physician Statement:
+Dr. Kevin Vance, MD (Lurie Children's Urgent Care): "The miscalibrated syringe supplied with bottle Lot PED-2026-044 presents an immediate pediatric overdose hazard. Immediate quarantine and recall evaluation is strongly urged."
+
+Sample Retention:
+The medication bottle, packaging carton, and defective oral syringe have been retained by the attending emergency physician for regulatory and manufacturer examination.
+
+Pharmacovigilance Alert:
+This event meets the statutory definition of a Serious Adverse Drug Experience (hospitalization / pediatric overdose caused by medical device packaging error). Triggers mandatory 15-day expedited MedWatch Form 3500A reporting to the FDA.

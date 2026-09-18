@@ -1,0 +1,28 @@
+COMMERCIAL ACTIVE PHARMACEUTICAL INGREDIENT (API) QUALITY DEFECT NOTIFICATION
+
+Reporting Organization: Apex Formulations Ltd. - Drug Product Manufacturing Division
+Plant Location: Unit 4 Formulation Facility, Industrial Estate, Cork, Ireland
+Date of Report: September 12, 2026
+Reported By: Liam O'Connor, Senior Manager - Incoming Raw Material Quality Control
+Contact: l.oconnor@apexformulations.ie | Phone: +353 21 490 8821
+
+SUPPLIER / MATERIAL IDENTIFICATION:
+- Supplier: NovaPharma Bulk Chemical Synthetics Inc.
+- Material Description: Paracetamol (Acetaminophen) USP/Ph.Eur Micronized API Bulk Powder
+- Material Code: API-PARA-MIC-01
+- Supplier Batch / Lot Number: LOT-PARA-2026-0814
+- Delivery Note / PO Number: PO-884920 / DN-39912
+- Drum Identification: Drums 14, 15, and 18 of 50 received
+
+DEFECT AND OUT-OF-SPECIFICATION (OOS) SUMMARY:
+During the mandatory sampling and incoming quality verification of drum shipments under SOP-RM-104, our QC sampling technicians discovered physical particulate anomalies:
+1. Foreign Particulate Matter: Upon opening polyethylene inner drum liner #14, visible black speck contamination was detected on the surface and embedded within the top 5 cm of the white crystalline powder. Fourier Transform Infrared Spectroscopy (FTIR) microscopy performed on isolated specks tentatively matches fluoropolymer / Viton gasket degradation material.
+2. Particle Size Distribution (PSD) Deviation: Sieve analysis for Drum #18 revealed d90 = 64 µm against our agreed finished drug formulation raw material specification of d90 <= 45 µm. This severe coarseness prevents homogeneous direct compression in our high-speed rotary tablet presses.
+
+REGULATORY & COMPLIANCE IMPACT:
+This consignment represents an unformulated Active Pharmaceutical Ingredient. All 50 drums have been placed on strict Incoming Quality Control (IQC) Quarantine Hold (Reject Tag #QR-9921) in Warehouse Bay C. No finished drug product batches have been formulated using this lot.
+
+ACTION REQUIRED FROM API MANUFACTURER:
+1. Initiate formal Root Cause Analysis (RCA) regarding process filtration, centrifuge seals, and micronizer gasket integrity.
+2. Provide disposition instructions for the return or destruction of all 50 drums.
+3. Supply full Batch Production & Control Record (BPCR) review for LOT-PARA-2026-0814.
