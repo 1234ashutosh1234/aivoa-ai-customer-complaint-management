@@ -119,6 +119,35 @@ export default function ComplaintFormPage() {
         newOrigins[k] = 'ai';
       });
       setOrigins(newOrigins);
+    } else {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('demo') === 'true') {
+        setFormData((prev) => ({
+          ...prev,
+          title: 'Quality Complaint: Paracetamol 500 mg Tablets (PCM24017)',
+          product_name: 'Paracetamol 500 mg Tablets',
+          batch_number: 'PCM24017',
+          manufacturing_type: 'Oral Solid Dosage',
+          dosage_form: 'Tablet',
+          complaint_type: 'Physical Tablet Defect',
+          severity: 'MEDIUM',
+          criticality: 'MAJOR',
+          complainant_name: 'Dr. Marcus Vance (Edited by QA)',
+          complainant_organization: 'MediCare National Supply Chain - Central Depot',
+          description: 'Customer MediCare Distributors reported that Paracetamol 500 mg Tablets from batch PCM24017 had several broken tablets and powder inside the blister pockets. The issue was observed in multiple packs received by the distributor. No confirmed patient injury has been reported.',
+          immediate_containment: 'Immediate quarantine of retained batch samples requested.'
+        }));
+        setOrigins({
+          product_name: 'extracted',
+          batch_number: 'extracted',
+          complaint_type: 'ai',
+          severity: 'ai',
+          criticality: 'ai',
+          complainant_name: 'edited',
+          complainant_organization: 'edited',
+          description: 'ai'
+        });
+      }
     }
   }, [currentAssessment]);
 

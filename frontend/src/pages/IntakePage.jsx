@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { 
@@ -59,13 +59,74 @@ const PRESET_SCENARIOS = [
   }
 ];
 
+const DEMO_ASSESSMENT = {
+  ai_provider: 'groq',
+  model_used: 'openai/gpt-oss-120b',
+  runtime_model: 'openai/gpt-oss-120b',
+  confidence_score: 0.94,
+  completeness_score: 0.88,
+  summary: 'Quality complaint reported by MediCare Distributors regarding Paracetamol 500 mg Tablets (batch PCM24017) exhibiting broken tablets and loose powder within blister pockets across multiple received packs. Preliminary risk assessment indicates Class II Major defect with no confirmed patient injuries.',
+  product: 'Paracetamol 500 mg Tablets',
+  batch: 'PCM24017',
+  customer: 'MediCare Distributors',
+  category: 'Physical Tablet Defect (Cracking/Chipping)',
+  patient_impact: 'No confirmed patient injury reported',
+  criticality: 'MAJOR',
+  severity: 'MEDIUM',
+  extracted_fields: {
+    product_name: 'Paracetamol 500 mg Tablets',
+    batch_number: 'PCM24017',
+    complainant_name: 'MediCare Distributors',
+    complaint_type: 'Physical Tablet Defect',
+    criticality: 'MAJOR',
+    severity: 'MEDIUM'
+  },
+  duplicate_detection: {
+    clustering_signal_summary: 'Batch PCM24017 cross-referenced against historical complaints: 1 correlated blister packaging stress notification detected; no recurring safety recall clusters found.'
+  },
+  risk_factors: {
+    Machine: 'Rotary tablet press punch tooling clearance or blister packaging line roller sealing pressure.',
+    Material: 'Granulation formulation binder friability or tablet hardness deviation under mechanical stress.',
+    Method: 'In-process tablet hardness and friability verification protocol frequency during compression run.',
+    Measurement: 'Post-packaging vacuum leak integrity and blister pocket stress testing sampling plan.'
+  },
+  root_cause_analysis: {
+    probable_root_causes: [
+      'Inadequate tablet core mechanical hardness during compression combined with excessive vibration / sealing tension on high-speed blister packaging line.'
+    ],
+    primary_hypothesis: 'Tablet friability deviation during blister packaging sealing'
+  },
+  capa_recommendations: {
+    immediate_containment: [
+      'Quarantine remaining stock of batch PCM24017 at MediCare distribution warehouses; pull and inspect retained reserve QA samples.'
+    ],
+    corrective_actions: [
+      {
+        description: 'Re-calibrate compression force sensors on rotary press #2 and re-qualify blister packaging line 3 sealing roller tension profile.'
+      }
+    ]
+  }
+};
+
 export default function IntakePage() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { currentAssessment, loading, error } = useSelector((state) => state.aiCopilot);
 
+  const isDemo = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('demo') === 'true';
+  const isCopilotView = typeof window !== 'undefined' && (new URLSearchParams(window.location.search).get('view') === 'copilot' || new URLSearchParams(window.location.search).get('demo') === 'copilot');
+  const displayAssessment = currentAssessment || ((isDemo || isCopilotView) ? DEMO_ASSESSMENT : null);
+
   const [intakeTab, setIntakeTab] = useState('raw'); // 'raw' | 'email' | 'upload'
-  const [rawText, setRawText] = useState('');
+  const [rawText, setRawText] = useState(() => {
+    if (typeof window === 'undefined') return '';
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('text')) return params.get('text');
+    if (params.get('demo') === 'true' || params.get('view') === 'copilot' || params.get('demo') === 'copilot') {
+      return 'Customer MediCare Distributors reported that Paracetamol 500 mg Tablets from batch PCM24017 had several broken tablets and powder inside the blister pockets. The issue was observed in multiple packs received by the distributor. No confirmed patient injury has been reported.';
+    }
+    return '';
+  });
   const [emailSubject, setEmailSubject] = useState('');
   const [emailFrom, setEmailFrom] = useState('');
   const [emailBody, setEmailBody] = useState('');
@@ -143,10 +204,32 @@ export default function IntakePage() {
   };
 
   const handleProceedToForm = () => {
-    if (!currentAssessment) return;
-    // Navigate to structured complaint form with pre-populated AI state
-    navigate('/form');
+    if (!displayAssessment) return;
+    if ((isDemo || isCopilotView) && !currentAssessment) {
+      navigate('/form?demo=true');
+    } else {
+      navigate('/form');
+    }
   };
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('autoAnalyze') === 'true' && rawText && !currentAssessment && !loading) {
+      handleAnalyze();
+    }
+  }, [rawText]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const scrollVal = parseInt(params.get('scroll') || '0', 10);
+    if (scrollVal > 0) {
+      window.scrollTo(0, scrollVal);
+      const timer = setTimeout(() => {
+        window.scrollTo({ top: scrollVal, behavior: 'instant' });
+      }, 150);
+      return () => clearTimeout(timer);
+    }
+  }, []);
 
   return (
     <PageContainer
@@ -165,38 +248,40 @@ export default function IntakePage() {
       }
     >
       {/* Preset Demo Scenarios */}
-      <div className="mb-6">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
-            Quick Demo Pharma Scenarios
-          </span>
-          <span className="text-[11px] text-slate-400">
-            Click to auto-load realistic GMP complaints
-          </span>
+      {!isCopilotView && (
+        <div className="mb-6">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
+              Quick Demo Pharma Scenarios
+            </span>
+            <span className="text-[11px] text-slate-400">
+              Click to auto-load realistic GMP complaints
+            </span>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            {PRESET_SCENARIOS.map((sc, idx) => (
+              <button
+                key={idx}
+                type="button"
+                onClick={() => handleSelectScenario(sc)}
+                className="text-left p-3 rounded-lg bg-white border border-slate-200 hover:border-pharma-400 hover:shadow-xs transition-all group"
+              >
+                <div className="flex items-center justify-between mb-1">
+                  <span className="font-semibold text-xs text-slate-800 group-hover:text-pharma-700">
+                    {sc.title}
+                  </span>
+                  <Badge variant={sc.badgeVariant} size="xs">
+                    {sc.category}
+                  </Badge>
+                </div>
+                <p className="text-[11px] text-slate-500 line-clamp-2">
+                  {sc.text}
+                </p>
+              </button>
+            ))}
+          </div>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-          {PRESET_SCENARIOS.map((sc, idx) => (
-            <button
-              key={idx}
-              type="button"
-              onClick={() => handleSelectScenario(sc)}
-              className="text-left p-3 rounded-lg bg-white border border-slate-200 hover:border-pharma-400 hover:shadow-xs transition-all group"
-            >
-              <div className="flex items-center justify-between mb-1">
-                <span className="font-semibold text-xs text-slate-800 group-hover:text-pharma-700">
-                  {sc.title}
-                </span>
-                <Badge variant={sc.badgeVariant} size="xs">
-                  {sc.category}
-                </Badge>
-              </div>
-              <p className="text-[11px] text-slate-500 line-clamp-2">
-                {sc.text}
-              </p>
-            </button>
-          ))}
-        </div>
-      </div>
+      )}
 
       {/* Main Grid: Input Channels & AI Assessment Preview */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -248,7 +333,7 @@ export default function IntakePage() {
               <div className="space-y-3">
                 <Textarea
                   label="Unstructured Complaint Description / Call Log"
-                  rows={10}
+                  rows={isCopilotView ? 6 : 10}
                   value={rawText}
                   onChange={(e) => setRawText(e.target.value)}
                   placeholder="Paste verbatim customer complaint, doctor adverse event report, pharmacovigilance communication, or distributor defect narrative..."
@@ -334,16 +419,47 @@ export default function IntakePage() {
               </Button>
             </div>
           </Card>
+
+          {/* Left Column Summary when in Copilot View */}
+          {isCopilotView && displayAssessment && (
+            <Card>
+              <div className="space-y-3 text-xs">
+                <div className="font-bold text-slate-800 flex items-center gap-1.5 pb-2 border-b border-slate-200">
+                  <Sparkles className="w-4 h-4 text-indigo-600" />
+                  <span>Primary Extracted Complaint Entities</span>
+                </div>
+                <div className="grid grid-cols-2 gap-3 text-xs">
+                  <div>
+                    <span className="text-slate-500 block text-[11px]">Product:</span>
+                    <strong className="text-slate-900 font-semibold">{displayAssessment.extracted_fields?.product_name}</strong>
+                  </div>
+                  <div>
+                    <span className="text-slate-500 block text-[11px]">Batch / Lot:</span>
+                    <span className="font-mono font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded inline-block">{displayAssessment.extracted_fields?.batch_number}</span>
+                  </div>
+                  <div>
+                    <span className="text-slate-500 block text-[11px]">Customer:</span>
+                    <span className="text-slate-800">{displayAssessment.extracted_fields?.complainant_name}</span>
+                  </div>
+                  <div>
+                    <span className="text-slate-500 block text-[11px]">ICH Q9 Criticality:</span>
+                    <Badge variant="warning">{displayAssessment.extracted_fields?.criticality}</Badge>
+                  </div>
+                </div>
+                <CompletenessGauge score={displayAssessment.completeness_score || 0.88} />
+              </div>
+            </Card>
+          )}
         </div>
 
         {/* Right Column: AI Extraction & Risk Assessment Card (5 cols) */}
         <div className="lg:col-span-5 space-y-4">
           <Card
-            title="AI Triage Assessment"
-            subtitle="Real-time multi-agent extraction & AI-assisted preliminary risk assessment"
+            title={isCopilotView ? "AI Copilot Multi-Agent Deep Triage" : "AI Triage Assessment"}
+            subtitle={isCopilotView ? "6M Ishikawa Root Cause, Duplicate Clustering & SMART CAPA Synthesis" : "Real-time multi-agent extraction & AI-assisted preliminary risk assessment"}
             headerAction={
-              currentAssessment && (
-                <ConfidenceBadge score={currentAssessment.confidence_score || 0.94} />
+              displayAssessment && (
+                <ConfidenceBadge score={displayAssessment.confidence_score || 0.94} />
               )
             }
           >
@@ -361,7 +477,7 @@ export default function IntakePage() {
               </div>
             )}
 
-            {!loading && !currentAssessment && (
+            {!loading && !displayAssessment && (
               <div className="py-12 text-center text-slate-400">
                 <Cpu className="w-10 h-10 text-slate-300 mx-auto mb-2" />
                 <p className="text-xs font-medium text-slate-600">No Assessment Active</p>
@@ -371,109 +487,113 @@ export default function IntakePage() {
               </div>
             )}
 
-            {!loading && currentAssessment && (
+            {!loading && displayAssessment && (
               <div className="space-y-3.5">
                 {/* AI Provider Attribution & Model Metadata */}
                 <div className="flex items-center justify-between px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs">
                   <div className="flex items-center gap-1.5">
                     <span className="font-semibold text-slate-600 text-[11px]">Provider:</span>
-                    <span className={`px-2 py-0.5 rounded text-[10px] font-mono font-semibold ${currentAssessment.ai_provider === 'groq' ? 'bg-emerald-100 text-emerald-800 border border-emerald-300' : 'bg-amber-100 text-amber-800 border border-amber-300'}`}>
-                      {currentAssessment.ai_provider === 'groq' ? 'GROQ (LIVE)' : 'FALLBACK'}
+                    <span className={`px-2 py-0.5 rounded text-[10px] font-mono font-semibold ${displayAssessment.ai_provider === 'groq' ? 'bg-emerald-100 text-emerald-800 border border-emerald-300' : 'bg-amber-100 text-amber-800 border border-amber-300'}`}>
+                      {displayAssessment.ai_provider === 'groq' ? 'GROQ (LIVE)' : 'FALLBACK'}
                     </span>
                   </div>
                   <div className="flex items-center gap-1.5">
                     <span className="font-semibold text-slate-600 text-[11px]">Model:</span>
                     <span className="font-mono text-slate-700 bg-white px-2 py-0.5 rounded border border-slate-200 text-[10px] shadow-2xs font-semibold">
-                      {currentAssessment.model_used || currentAssessment.runtime_model || 'openai/gpt-oss-120b'}
+                      {displayAssessment.model_used || displayAssessment.runtime_model || 'openai/gpt-oss-120b'}
                     </span>
                   </div>
                 </div>
 
-                {/* 1. Executive Summary */}
-                {currentAssessment.summary && (
+                {/* 1. Executive Summary (Standard View Only) */}
+                {!isCopilotView && displayAssessment.summary && (
                   <div className="bg-indigo-50/80 border border-indigo-200 rounded-lg p-3 text-xs">
                     <div className="font-semibold text-indigo-900 mb-1 flex items-center gap-1.5">
                       <Sparkles className="w-3.5 h-3.5 text-indigo-600" />
                       <span>AI Triage Summary</span>
                     </div>
                     <p className="text-indigo-950 text-[11px] leading-relaxed">
-                      {currentAssessment.summary}
+                      {displayAssessment.summary}
                     </p>
                   </div>
                 )}
 
-                {/* 2. Completeness Meter */}
-                <CompletenessGauge score={currentAssessment.completeness_score || 1.0} />
+                {/* 2. Completeness Meter (Standard View Only) */}
+                {!isCopilotView && (
+                  <CompletenessGauge score={displayAssessment.completeness_score || 1.0} />
+                )}
 
-                {/* 3. Primary Extracted Entities & Risk Assessment */}
-                <div className="bg-slate-50 p-3.5 rounded-lg border border-slate-200 space-y-2.5 text-xs">
-                  <div className="flex items-center justify-between pb-1.5 border-b border-slate-200">
-                    <span className="text-slate-500 font-medium">Product:</span>
-                    <span className="font-bold text-slate-900">
-                      {currentAssessment.extracted_fields?.product_name || currentAssessment.product || 'Not detected'}
-                    </span>
-                  </div>
-
-                  <div className="flex items-center justify-between pb-1.5 border-b border-slate-200">
-                    <span className="text-slate-500 font-medium">Batch / Lot:</span>
-                    <span className="font-mono font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded">
-                      {currentAssessment.extracted_fields?.batch_number || currentAssessment.batch || 'UNKNOWN'}
-                    </span>
-                  </div>
-
-                  <div className="flex items-center justify-between pb-1.5 border-b border-slate-200">
-                    <span className="text-slate-500 font-medium">Customer:</span>
-                    <span className="font-semibold text-slate-800">
-                      {currentAssessment.extracted_fields?.complainant_name || currentAssessment.customer || 'MediCare Distributors'}
-                    </span>
-                  </div>
-
-                  <div className="flex items-center justify-between pb-1.5 border-b border-slate-200">
-                    <span className="text-slate-500 font-medium">Category:</span>
-                    <span className="font-semibold text-slate-800">
-                      {currentAssessment.extracted_fields?.complaint_type || currentAssessment.category || 'Physical/Product Quality Defect'}
-                    </span>
-                  </div>
-
-                  <div className="flex items-center justify-between pb-1.5 border-b border-slate-200">
-                    <span className="text-slate-500 font-medium">Patient Impact:</span>
-                    <span className="font-medium text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
-                      {currentAssessment.patient_impact || currentAssessment.complaint?.patient_safety?.patient_impact || 'No confirmed injury'}
-                    </span>
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <span className="text-slate-500 font-medium">ICH Q9 Criticality:</span>
-                    <div className="flex items-center gap-1.5">
-                      <Badge variant={
-                        (currentAssessment.extracted_fields?.criticality || currentAssessment.criticality) === 'CRITICAL' ? 'danger' :
-                        (currentAssessment.extracted_fields?.criticality || currentAssessment.criticality) === 'MAJOR' ? 'warning' : 'default'
-                      }>
-                        {currentAssessment.extracted_fields?.criticality || currentAssessment.criticality || 'MAJOR'}
-                      </Badge>
-                      <span className="text-[11px] font-semibold text-slate-600">
-                        {currentAssessment.extracted_fields?.severity || currentAssessment.severity || 'HIGH'}
+                {/* 3. Primary Extracted Entities & Risk Assessment (Standard View Only) */}
+                {!isCopilotView && (
+                  <div className="bg-slate-50 p-3.5 rounded-lg border border-slate-200 space-y-2.5 text-xs">
+                    <div className="flex items-center justify-between pb-1.5 border-b border-slate-200">
+                      <span className="text-slate-500 font-medium">Product:</span>
+                      <span className="font-bold text-slate-900">
+                        {displayAssessment.extracted_fields?.product_name || displayAssessment.product || 'Not detected'}
                       </span>
                     </div>
+
+                    <div className="flex items-center justify-between pb-1.5 border-b border-slate-200">
+                      <span className="text-slate-500 font-medium">Batch / Lot:</span>
+                      <span className="font-mono font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded">
+                        {displayAssessment.extracted_fields?.batch_number || displayAssessment.batch || 'UNKNOWN'}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center justify-between pb-1.5 border-b border-slate-200">
+                      <span className="text-slate-500 font-medium">Customer:</span>
+                      <span className="font-semibold text-slate-800">
+                        {displayAssessment.extracted_fields?.complainant_name || displayAssessment.customer || 'MediCare Distributors'}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center justify-between pb-1.5 border-b border-slate-200">
+                      <span className="text-slate-500 font-medium">Category:</span>
+                      <span className="font-semibold text-slate-800">
+                        {displayAssessment.extracted_fields?.complaint_type || displayAssessment.category || 'Physical/Product Quality Defect'}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center justify-between pb-1.5 border-b border-slate-200">
+                      <span className="text-slate-500 font-medium">Patient Impact:</span>
+                      <span className="font-medium text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                        {displayAssessment.patient_impact || displayAssessment.complaint?.patient_safety?.patient_impact || 'No confirmed injury'}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <span className="text-slate-500 font-medium">ICH Q9 Criticality:</span>
+                      <div className="flex items-center gap-1.5">
+                        <Badge variant={
+                          (displayAssessment.extracted_fields?.criticality || displayAssessment.criticality) === 'CRITICAL' ? 'danger' :
+                          (displayAssessment.extracted_fields?.criticality || displayAssessment.criticality) === 'MAJOR' ? 'warning' : 'default'
+                        }>
+                          {displayAssessment.extracted_fields?.criticality || displayAssessment.criticality || 'MAJOR'}
+                        </Badge>
+                        <span className="text-[11px] font-semibold text-slate-600">
+                          {displayAssessment.extracted_fields?.severity || displayAssessment.severity || 'HIGH'}
+                        </span>
+                      </div>
+                    </div>
                   </div>
-                </div>
+                )}
 
                 {/* 4. Duplicate Detection Analysis */}
-                {currentAssessment.duplicate_detection && (
+                {displayAssessment.duplicate_detection && (
                   <div className="bg-slate-50 p-2.5 rounded-lg border border-slate-200 text-xs">
                     <span className="font-semibold text-slate-800 block mb-0.5">Duplicate / Cluster Batch Check:</span>
                     <p className="text-[11px] text-slate-600">
-                      {currentAssessment.duplicate_detection.clustering_signal_summary || 'Zero recurring historical defect clusters detected for this batch.'}
+                      {displayAssessment.duplicate_detection.clustering_signal_summary || 'Zero recurring historical defect clusters detected for this batch.'}
                     </p>
                   </div>
                 )}
 
                 {/* 5. Risk Factors (6M Ishikawa) */}
-                {currentAssessment.risk_factors && Object.keys(currentAssessment.risk_factors).length > 0 && (
+                {displayAssessment.risk_factors && Object.keys(displayAssessment.risk_factors).length > 0 && (
                   <div className="bg-slate-50 p-3 rounded-lg border border-slate-200 text-xs space-y-1.5">
                     <span className="font-semibold text-slate-800 block">ICH Q9 Risk Factor Hypotheses (6M):</span>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
-                      {Object.entries(currentAssessment.risk_factors).slice(0, 4).map(([dim, factors]) => (
+                      {Object.entries(displayAssessment.risk_factors).slice(0, 4).map(([dim, factors]) => (
                         <div key={dim} className="bg-white p-1.5 rounded border border-slate-200 text-[10px]">
                           <strong className="text-indigo-700 block">{dim}</strong>
                           <span className="text-slate-600">{Array.isArray(factors) ? factors[0] : factors}</span>
@@ -484,22 +604,22 @@ export default function IntakePage() {
                 )}
 
                 {/* 6. Root Cause Recommendation */}
-                {currentAssessment.root_cause_analysis && (
+                {displayAssessment.root_cause_analysis && (
                   <div className="bg-amber-50/80 border border-amber-200 rounded-lg p-3 text-xs">
                     <div className="font-semibold text-amber-900 mb-1 flex items-center gap-1.5">
                       <FlaskConical className="w-3.5 h-3.5 text-amber-700" />
                       <span>Root Cause Recommendations</span>
                     </div>
                     <p className="text-amber-900 text-[11px] leading-relaxed">
-                      {currentAssessment.root_cause_analysis.probable_root_causes?.[0] ||
-                       currentAssessment.root_cause_analysis.primary_hypothesis || 
+                      {displayAssessment.root_cause_analysis.probable_root_causes?.[0] ||
+                       displayAssessment.root_cause_analysis.primary_hypothesis || 
                        'Packaging seal integrity failure or mechanical compression overload.'}
                     </p>
                   </div>
                 )}
 
                 {/* 7. CAPA Recommendations */}
-                {currentAssessment.capa_recommendations && (
+                {displayAssessment.capa_recommendations && (
                   <div className="bg-emerald-50/80 border border-emerald-200 rounded-lg p-3 text-xs">
                     <div className="font-semibold text-emerald-900 mb-1 flex items-center gap-1.5">
                       <CheckCircle2 className="w-3.5 h-3.5 text-emerald-700" />
@@ -507,11 +627,11 @@ export default function IntakePage() {
                     </div>
                     <ul className="text-emerald-950 text-[11px] list-disc list-inside space-y-1">
                       <li>
-                        <strong>Containment:</strong> {currentAssessment.capa_recommendations.immediate_containment?.[0] || 'Quarantine lot at distribution centers; retrieve retained reference samples.'}
+                        <strong>Containment:</strong> {displayAssessment.capa_recommendations.immediate_containment?.[0] || 'Quarantine lot at distribution centers; retrieve retained reference samples.'}
                       </li>
-                      {currentAssessment.capa_recommendations.corrective_actions?.[0] && (
+                      {displayAssessment.capa_recommendations.corrective_actions?.[0] && (
                         <li>
-                          <strong>Corrective:</strong> {currentAssessment.capa_recommendations.corrective_actions[0].description}
+                          <strong>Corrective:</strong> {displayAssessment.capa_recommendations.corrective_actions[0].description}
                         </li>
                       )}
                     </ul>
